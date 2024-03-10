@@ -1,0 +1,251 @@
+from medialib import *
+import pandas as pd
+import time
+import datetime
+
+
+now= datetime.datetime.now()
+
+monster_pos=[[]]
+fish_x_pos=[[]]
+fish_y_pos=[[]]
+
+initialize()
+start=time.time()
+def bg():
+    
+    b1=['X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X']
+    b2=['X','_','F','F','_','_','M','_','_','F','F','_','F','_','_','_','_','X']
+    b3=['X','F','_','_','M','_','M','F','_','_','F','_','_','M','_','E','F','X']
+    b4=['X','_','_','F','_','_','_','_','_','F','M','_','F','_','F','_','_','X']
+    b5=['X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X']
+    
+    height=40
+    width=40
+    x_pos=46
+    y_pos=50
+    
+    clear(200,190,200) ## background
+    text('Maze game',325,25,20,0,0,0)
+    #Set_font('pacificio.tff')
+    text('You are a lost cat, and have to find your way back home...',10,440,16,0,0,0)
+    text('reach the door to leave this level and get closer to home!',10,460,16,0,0,0)
+    text("To play: o Press 'a' and 'd' keys to move left and right",10,480,16,0,100,0)
+    text("              o Press 'w' and 's' keys to move upwards and downwards",20,500,16,0,100,0)
+    text("              o Press q to quit the game",20,520,16,180,100,0)
+    
+    draw_background(b1,x_pos,y_pos)
+    y_pos = y_pos + height
+    draw_background(b2,x_pos,y_pos)
+    y_pos = y_pos + height
+    draw_background(b3,x_pos,y_pos)
+    y_pos = y_pos + height
+    draw_background(b4,x_pos,y_pos)
+    y_pos = y_pos + height
+    draw_background(b5,x_pos,y_pos)
+    
+    
+    
+    
+
+def draw_background(str_bkgrnd,x_pos,y_pos):
+        for i in str_bkgrnd:
+            if i=='X':                                                   #boundry
+                draw("X.png",x_pos,y_pos,height,width)
+            elif i =='_':                                                #Path
+                draw("_.png",x_pos,y_pos,height,width)
+            elif i=='F':                                                 #Fish
+                draw("F.png",x_pos,y_pos,height,width)
+                fish_x_pos.append([x_pos,y_pos])
+            elif i=='M':
+                draw("M.png",x_pos,y_pos,height,width)
+                monster_pos.append([x_pos,y_pos])
+            elif i=='E':
+                draw("E.png",x_pos,y_pos,height,width)
+            x_pos = x_pos + width
+            
+
+            
+height=40
+width=40
+x_pos=46
+y_pos=50
+
+bg()
+print(fish_x_pos)
+print(monster_pos)
+cat_xpos=86
+cat_ypos=90
+cat_h=40
+cat_w=40
+
+        
+points=0
+count=0
+
+def hit(cat_xpos,cat_ypos):
+    for i in range(len(monster_pos)):
+        if monster_pos[i]==[cat_xpos,cat_ypos]:
+            text("You were eaten by monster!", 250,380,16,0,100,120)
+            text("Click anywhere to exit !", 250,400,20,100,100,100)
+            draw("monster.gif", 250,50,300,300)
+            play("catlost.wav")
+            
+            #wait(1)
+            break
+    for i in range(len(fish_x_pos)):
+        if fish_x_pos[i]==[cat_xpos,cat_ypos]:
+            global points
+            points+=1
+    if cat_xpos==646 and cat_ypos==130:
+        text("You reached home Safely",250,380,16,0,100,120)
+        text("Click anywhere to exit !", 250,400,20,100,100,100)
+        play("Cat_won.wav")
+        draw("you_win.png", 250,50,300,300)
+        text(points.__str__(),300,450,300,300)
+    if cat_xpos!=646 and cat_ypos!=130:
+        rect(300,450,35,50,0,0,0)
+        text(points.__str__(),300,450,35)
+    return 0
+
+clear()
+bg()
+draw("C.png",cat_xpos,cat_ypos,cat_h,cat_w)
+
+while True:
+    ## for some reasons the medialib library makes the program crashes when only using normal input.
+    ##  use the wait_key_press() function in the library
+    try:
+        userinput = wait_key_press()
+        ## press "a" to move the picture to left,
+        ## since it's a move and not just drawing a new picture, we have to clear the old cat as well.
+        ## moving left means moving the position of cat to next width. which is 40
+        if userinput == "a":
+            if cat_xpos<=120:
+                text("You have hit the wall", 10,340,16)
+            else:
+                cat_xpos -= 40
+                count=hit(cat_xpos,cat_ypos)
+                if count==0:
+                    draw("C.png", cat_xpos,cat_ypos,cat_h,cat_w)
+                    if userinput == "a":
+                        draw("_.png", cat_xpos+40,cat_ypos,cat_h,cat_w)
+                    elif userinput == "d":
+                        draw("_.png", cat_xpos-40,cat_ypos,cat_h,cat_w)
+                    elif userinput == "w":
+                        draw("_.png", cat_xpos,cat_ypos+40,cat_h,cat_w)
+                    elif userinput == "s":
+                        draw("_.png", cat_xpos,cat_ypos-40,cat_h,cat_w)
+                else:
+                    cat_xpos -= 40
+                    draw("C.png", cat_xpos,cat_ypos,cat_h,cat_w)
+                    
+        elif userinput == "d":
+            if cat_xpos>= 680:
+                text("You have hit the wall", 10,340,16)
+            else:
+                cat_xpos += 40
+                count=hit(cat_xpos,cat_ypos)
+                if count==0:
+                    draw("C.png", cat_xpos,cat_ypos,cat_h,cat_w)
+                    if userinput == "a":
+                        draw("_.png", cat_xpos+40,cat_ypos,cat_h,cat_w)
+                    elif userinput == "d":
+                        draw("_.png", cat_xpos-40,cat_ypos,cat_h,cat_w)
+                    elif userinput == "w":
+                        draw("_.png", cat_xpos,cat_ypos+40,cat_h,cat_w)
+                    elif userinput == "s":
+                        draw("_.png", cat_xpos,cat_ypos-40,cat_h,cat_w)
+                else:
+                    cat_xpos += 40
+                    draw("C.png", cat_xpos,cat_ypos,cat_h,cat_w)
+            
+        elif userinput == "w":
+            if cat_ypos <= 120:
+                text("You have hit the wall", 10,340,16)
+            else:
+                cat_ypos -= 40
+                count=hit(cat_xpos,cat_ypos)
+                if count==0:
+                    draw("C.png", cat_xpos,cat_ypos,cat_h,cat_w)
+                    if userinput == "a":
+                        draw("_.png", cat_xpos+40,cat_ypos,cat_h,cat_w)
+                    elif userinput == "d":
+                        draw("_.png", cat_xpos-40,cat_ypos,cat_h,cat_w)
+                    elif userinput == "w":
+                        draw("_.png", cat_xpos,cat_ypos+40,cat_h,cat_w)
+                    elif userinput == "s":
+                        draw("_.png", cat_xpos,cat_ypos-40,cat_h,cat_w)
+                else:
+                    cat_ypos -= 40
+                    draw("C.png", cat_xpos,cat_ypos,cat_h,cat_w)
+        
+        elif userinput == "s":
+            if cat_ypos >= 160  :
+                text("You have hit the wall", 10,340,16)
+            else:
+                cat_ypos += 40
+                count=hit(cat_xpos,cat_ypos)
+                if count==0:
+                    draw("C.png", cat_xpos,cat_ypos,cat_h,cat_w)
+                    if userinput == "a":
+                        draw("_.png", cat_xpos+40,cat_ypos,cat_h,cat_w)
+                    elif userinput == "d":
+                        draw("_.png", cat_xpos-40,cat_ypos,cat_h,cat_w)
+                    elif userinput == "w":
+                        draw("_.png", cat_xpos,cat_ypos+40,cat_h,cat_w)
+                    elif userinput == "s":
+                        draw("_.png", cat_xpos,cat_ypos-40,cat_h,cat_w)
+                else:
+                    cat_ypos += 40
+                    draw("C.png", cat_xpos,cat_ypos,cat_h,cat_w)
+ 
+        
+        elif userinput == "q":
+            clear()
+            text("Quitting window", 100,500,16)
+            break
+            
+    except Exception as e:
+        text("This is a illegal input!!!", 300,340,20)
+        draw("C.png", cat_xpos,cat_ypos)
+    
+
+    
+    #Positions of fish/Monster and Exit
+    #if((cat_xpos==126 or cat_xpos==166 or cat_xpos==406 or cat_xpos==446 or cat_xpos==526) and cat_ypos==90) or ((cat_xpos==86 or cat_xpos==326 or cat_xpos==446 or cat_xpos==686) and cat_ypos==130) or ((cat_xpos==166 or cat_xpos==406 or cat_xpos==526 or cat_xpos==606) and cat_ypos==170):
+        #text("+ 1 Points", 300,340,20)
+        #if userinput == "a":
+            #draw_tiles(cat_xpos+40,cat_ypos)
+        #elif userinput == "d":
+            #draw_tiles(cat_xpos-40,cat_ypos)
+        #elif userinput == "w":
+            #draw_tiles(cat_xpos,cat_ypos+40)
+        #elif userinput == "s":
+            #draw_tiles(cat_xpos,cat_ypos-40)            
+       # play("points.wav")
+        #points+=1
+        
+        #draw("_.png", cat_xpos,cat_ypos,cat_h,cat_w)
+    #elif((cat_xpos==286) and cat_ypos==90) or ((cat_xpos==206 or cat_xpos==286 or cat_xpos==566 ) and cat_ypos==130) or ((cat_xpos==446) and cat_ypos==170):
+       # text("You were eaten by monster!", 250,380,16,0,100,120)
+        #text("Click anywhere to exit !", 250,400,20,100,100,100)
+        #draw("monster.gif", 250,50,300,300)
+        #play("catlost.wav")
+        #wait(1)
+        #break
+        #draw(".png", cat_xpos,cat_ypos,cat_h,cat_w)
+    #elif cat_xpos==646 and cat_ypos==130:
+        #text("You reached home Safely",250,380,16,0,100,120)
+        #text("Click anywhere to exit !", 250,400,20,100,100,100)
+        #play("Cat_won.wav")
+        #draw("you_win.png", 250,50,300,300)
+        #text(points.__str__(),300,450,300,300)
+        #wait(1)
+        #break
+       
+
+    
+stop=time.time()   
+wait_mouse_leftclick()
+all_done()  
